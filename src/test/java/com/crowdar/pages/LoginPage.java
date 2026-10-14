@@ -1,9 +1,11 @@
 package com.crowdar.pages;
 
+import com.crowdar.utils.PropertyReader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 public class LoginPage {
+
     private WebDriver driver;
 
     // Locadores de la página de Login
@@ -11,13 +13,14 @@ public class LoginPage {
     private By passwordInput = By.id("password");
     private By loginButton = By.id("login-button");
     private By productsTitle = By.className("title");
+    private By errorMessage = By.cssSelector("[data-test='error']");
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
     }
 
     public void navigateToLogin() {
-        driver.get("https://www.saucedemo.com/");
+        driver.get(PropertyReader.getProperty("baseUrl"));
     }
 
     public void enterUsername(String username) {
@@ -40,5 +43,8 @@ public class LoginPage {
 
     public String getPageTitle() {
         return driver.findElement(productsTitle).getText();
+    }
+    public String getErrorMessage() {
+        return driver.findElement(errorMessage).getText();
     }
 }

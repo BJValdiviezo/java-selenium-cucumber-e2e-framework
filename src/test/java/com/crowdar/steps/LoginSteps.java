@@ -28,4 +28,15 @@ public class LoginSteps {
         String actualTitle = loginPage.getPageTitle();
         Assert.assertEquals(actualTitle, expectedTitle, "El login no fue exitoso o el título no coincide.");
     }
+
+    @When("ingresa el usuario {string} y la contrasena {string}")
+    public void ingresaElUsuarioYLaContrasena(String user, String pass) {
+        loginPage.login(user, pass);
+    }
+
+    @Then("se verifica que se muestra el mensaje de error {string}")
+    public void seVerificaQueSeMuestraElMensajeDeError(String expectedError) {
+        String actualError = loginPage.getErrorMessage();
+        Assert.assertEquals(actualError, expectedError, "El mensaje de error no coincide.");
+    }
 }
