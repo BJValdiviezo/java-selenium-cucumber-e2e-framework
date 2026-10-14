@@ -27,7 +27,7 @@ src
 │   └── resources
 │       ├── config.properties   <-- Configuración dinámica de entorno
 │       └── features            <-- Escenarios de prueba BDD (Gherkin)
-testng.xml                       <-- Suite runner y parametrización de ejecuciones
+testng.xml                      <-- Suite runner y parametrización de ejecuciones
 ```
 ---
 
