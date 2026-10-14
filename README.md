@@ -28,7 +28,7 @@ src
 │       ├── config.properties   <-- Configuración dinámica de entorno
 │       └── features            <-- Escenarios de prueba BDD (Gherkin)
 testng.xml                       <-- Suite runner y parametrización de ejecuciones
-
+```
 ---
 
 ### 🌟 Key Features
