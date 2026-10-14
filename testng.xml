@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="E2E Automation Test Suite">
+    <test name="SauceDemo Web Regression">
+        <classes>
+            <class name="com.crowdar.TestRunner" />
+        </classes>
+    </test>
+</suite>
