@@ -2,7 +2,6 @@ package com.crowdar.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -37,33 +36,46 @@ public class CheckoutPage {
             clickCheckout();
         }
 
-        // 1. Llenar campo First Name
+        // Esperar que los campos sean visibles
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
+        WebElement lastNameEl = driver.findElement(lastNameInput);
+        WebElement postalCodeEl = driver.findElement(postalCodeInput);
+
+        // Cargar datos
         firstNameEl.clear();
         firstNameEl.sendKeys(firstName);
 
-        // 2. Llenar campo Last Name
-        WebElement lastNameEl = driver.findElement(lastNameInput);
         lastNameEl.clear();
         lastNameEl.sendKeys(lastName);
 
-        // 3. Llenar campo Postal Code y enviar TAB para quitar el foco
-        WebElement postalCodeEl = driver.findElement(postalCodeInput);
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
-        postalCodeEl.sendKeys(Keys.TAB);
 
-        // 4. Click sobre el boton Continue
+        // Forzar eventos JS para asegurar la validacion en React/Vue de Saucedemo
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript(
+            "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));" +
+            "arguments[1].dispatchEvent(new Event('input', { bubbles: true }));" +
+            "arguments[2].dispatchEvent(new Event('input', { bubbles: true }));",
+            firstNameEl, lastNameEl, postalCodeEl
+        );
+
+        // Clic directo sobre el submit button
         WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
         continueBtn.click();
 
-        // 5. Fallback por si la transicion en headless se demora
-        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-            js.executeScript("arguments[0].click();", continueBtn);
+        // Fallback: Si sigue en step-one despues de medio segundo, enviar submit del form por JS
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
-        // 6. Confirmar cambio de vista a checkout-step-two
+        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            js.executeScript("arguments[0].closest('form').submit();", continueBtn);
+        }
+
+        // Confirmar transicion exitosa
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
