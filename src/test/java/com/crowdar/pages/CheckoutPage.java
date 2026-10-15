@@ -2,6 +2,7 @@ package com.crowdar.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -61,9 +62,13 @@ public class CheckoutPage {
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
 
-        WebElement continueBtn = wait.until(ExpectedConditions.presenceOfElementLocated(continueButton));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].click();", continueBtn);
+        // Click en continuar y submit nativo por teclado para entornos headless en Linux
+        WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
+        continueBtn.click();
+
+        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            postalCodeEl.sendKeys(Keys.ENTER);
+        }
 
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
