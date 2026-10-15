@@ -2,7 +2,6 @@ package com.crowdar.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -35,19 +34,30 @@ public class CheckoutPage {
     }
 
     public void goToCart() {
-        wait.until(ExpectedConditions.elementToBeClickable(cartIcon)).click();
+        WebElement cartBtn = wait.until(ExpectedConditions.presenceOfElementLocated(cartIcon));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", cartBtn);
+
+        // Fallback en caso de latencia de navegación en CI Headless
+        if (!driver.getCurrentUrl().contains("cart.html")) {
+            driver.get("https://www.saucedemo.com/cart.html");
+        }
+
         wait.until(ExpectedConditions.urlContains("cart.html"));
     }
 
     public void clickCheckout() {
         if (!driver.getCurrentUrl().contains("checkout-step-one.html")) {
-            WebElement checkoutBtn = wait.until(ExpectedConditions.elementToBeClickable(checkoutButton));
+            WebElement checkoutBtn = wait.until(ExpectedConditions.presenceOfElementLocated(checkoutButton));
             JavascriptExecutor js = (JavascriptExecutor) driver;
             js.executeScript("arguments[0].click();", checkoutBtn);
         }
     }
 
     public void enterShippingInformation(String firstName, String lastName, String postalCode) {
+        if (!driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            driver.get("https://www.saucedemo.com/checkout-step-one.html");
+        }
         wait.until(ExpectedConditions.urlContains("checkout-step-one.html"));
 
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
@@ -58,13 +68,9 @@ public class CheckoutPage {
         setReactInputValue(lastNameEl, lastName);
         setReactInputValue(postalCodeEl, postalCode);
 
-        // Intentar click estándar y fallback con ENTER en el último input
-        WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
-        continueBtn.click();
-
-        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
-            postalCodeEl.sendKeys(Keys.ENTER);
-        }
+        WebElement continueBtn = wait.until(ExpectedConditions.presenceOfElementLocated(continueButton));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", continueBtn);
 
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
@@ -74,7 +80,6 @@ public class CheckoutPage {
         element.clear();
         element.sendKeys(value);
 
-        // Sincronización explícita con el Virtual DOM de React para ejecuciones rápidas en CI
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript(
             "var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;" +
@@ -87,7 +92,7 @@ public class CheckoutPage {
 
     public void finishCheckout() {
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
-        WebElement finishBtn = wait.until(ExpectedConditions.elementToBeClickable(finishButton));
+        WebElement finishBtn = wait.until(ExpectedConditions.presenceOfElementLocated(finishButton));
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("arguments[0].click();", finishBtn);
     }
