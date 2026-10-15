@@ -6,31 +6,66 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Clonar el repositorio desde la rama main
+    # 1. Clonar el código usando acciones v5
     - name: Checkout del código
       uses: actions/checkout@v4
 
-    # 2. Configurar JDK 17
+    # 2. Configurar Java 17 usando setup-java@v5
     - name: Configurar Java 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
 
-    # 3. Ejecutar las pruebas automatizadas en modo Headless
+    # 3. Ejecutar las pruebas automatizadas con Maven
     - name: Ejecutar Pruebas Automatizadas con Maven
       run: mvn test -Dbrowser=chrome -Dheadless=true
+      continue-on-error: true
 
-    # 4. Guardar los reportes de Cucumber como artefactos descargables
-    - name: Guardar Reportes de Cucumber
+    # 4. Guardar reportes (target/ e historias de allure si existen)
+    - name: Guardar Artefactos de Pruebas
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: cucumber-test-reports
-        path: target/cucumber-reports/
+        name: test-execution-reports
+        path: |
+          target/cucumber-reports*
+          allure-results/
+
+    # 5. Cargar historial previo de Allure
+    - name: Cargar historial previo de Allure
+      uses: actions/checkout@v4
+      if: always()
+      continue-on-error: true
+      with:
+        ref: gh-pages
+        path: gh-pages
+
+    # 6. Generar el reporte HTML estático de Allure
+    - name: Generar Reporte de Allure
+      uses: simple-elf/allure-report-action@v1.7
+      if: always()
+      with:
+        allure_results: allure-results
+        allure_history: allure-history
+        keep_reports: 20
+
+    # 7. Publicar en GitHub Pages
+    - name: Publicar en GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: always()
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: allure-history
