@@ -1,7 +1,6 @@
 package com.crowdar.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -32,12 +31,9 @@ public class CheckoutPage {
     }
 
     public void enterShippingInformation(String firstName, String lastName, String postalCode) {
-        if (!driver.getCurrentUrl().contains("checkout-step-one.html")) {
-            if (driver.getCurrentUrl().contains("cart.html")) {
-                clickCheckout();
-            } else {
-                driver.get("https://www.saucedemo.com/checkout-step-one.html");
-            }
+        // Aseguramos click en checkout si estamos en el carrito
+        if (driver.getCurrentUrl().contains("cart.html")) {
+            clickCheckout();
         }
 
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
@@ -52,18 +48,20 @@ public class CheckoutPage {
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
 
-        // Envío robusto mediante JavaScript en headless
+        // Intento de click estándar
         WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].click();", continueBtn);
+        continueBtn.click();
+
+        // Si headless traba el evento click, forzamos el submit nativo del formulario contenedor
+        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            continueBtn.submit();
+        }
 
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
     public void finishCheckout() {
-        WebElement finishBtn = wait.until(ExpectedConditions.elementToBeClickable(finishButton));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].click();", finishBtn);
+        wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
     }
 
     public String getConfirmationMessage() {
