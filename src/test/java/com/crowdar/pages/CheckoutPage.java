@@ -22,7 +22,6 @@ public class CheckoutPage {
 
     public CheckoutPage(WebDriver driver) {
         this.driver = driver;
-        // Inicializamos una espera explícita de 10 segundos
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
@@ -31,7 +30,12 @@ public class CheckoutPage {
     }
 
     public void enterShippingInformation(String firstName, String lastName, String postalCode) {
-        // Garantiza que el campo #first-name esté visible en el DOM antes de escribir
+        // Si el usuario aún está en /cart.html, hacemos clic en checkout primero
+        if (driver.getCurrentUrl().contains("cart.html")) {
+            clickCheckout();
+        }
+
+        // Espera explícita hasta que el formulario del checkout esté visible
         wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput)).sendKeys(firstName);
         driver.findElement(lastNameInput).sendKeys(lastName);
         driver.findElement(postalCodeInput).sendKeys(postalCode);
