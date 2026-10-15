@@ -20,9 +20,9 @@ jobs:
     - name: Checkout del código
       uses: actions/checkout@v4
 
-    # 2. Configurar Java 17
+    # 2. Configurar Java 17 (versión v5 para eliminar warning)
     - name: Configurar Java 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -37,7 +37,7 @@ jobs:
     # 4. Ejecutar las pruebas automatizadas con Maven
     - name: Ejecutar Pruebas Automatizadas con Maven
       run: mvn test -Dbrowser=chrome -Dheadless=true
-      continue-on-error: true # Permite que el pipeline siga para generar el reporte de Allure aunque falle un test
+      continue-on-error: true # <--- CLAVE: permite continuar aunque falle un test para armar el reporte
 
     # 5. Guardar Reportes de Cucumber como Artefacto
     - name: Guardar Reportes de Cucumber
