@@ -2,7 +2,6 @@ package com.crowdar.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -51,24 +50,32 @@ public class CheckoutPage {
         wait.until(ExpectedConditions.urlContains("checkout-step-one.html"));
 
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
+        WebElement lastNameEl = driver.findElement(lastNameInput);
+        WebElement postalCodeEl = driver.findElement(postalCodeInput);
+
+        // Cargar valores
         firstNameEl.clear();
         firstNameEl.sendKeys(firstName);
 
-        WebElement lastNameEl = driver.findElement(lastNameInput);
         lastNameEl.clear();
         lastNameEl.sendKeys(lastName);
 
-        WebElement postalCodeEl = driver.findElement(postalCodeInput);
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
 
-        // Click en continuar y submit nativo por teclado para entornos headless en Linux
-        WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
-        continueBtn.click();
+        // Forzar eventos de React para asegurar que el formulario detecte los textos ingresados en headless
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript(
+            "var ev = new Event('input', { bubbles: true });" +
+            "arguments[0].dispatchEvent(ev);" +
+            "arguments[1].dispatchEvent(ev);" +
+            "arguments[2].dispatchEvent(ev);",
+            firstNameEl, lastNameEl, postalCodeEl
+        );
 
-        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
-            postalCodeEl.sendKeys(Keys.ENTER);
-        }
+        // Ejecutar el submit directamente sobre el formulario contenedor
+        WebElement continueBtn = wait.until(ExpectedConditions.presenceOfElementLocated(continueButton));
+        js.executeScript("arguments[0].closest('form').submit();", continueBtn);
 
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
