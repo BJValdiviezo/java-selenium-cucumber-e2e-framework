@@ -1,7 +1,6 @@
 package com.crowdar.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -32,10 +31,16 @@ public class CheckoutPage {
     }
 
     public void enterShippingInformation(String firstName, String lastName, String postalCode) {
-        if (driver.getCurrentUrl().contains("cart.html")) {
-            clickCheckout();
+        // Asegurar la transicion desde el carrito a checkout-step-one
+        if (!driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            if (driver.getCurrentUrl().contains("cart.html")) {
+                clickCheckout();
+            } else {
+                driver.get("https://www.saucedemo.com/checkout-step-one.html");
+            }
         }
 
+        // Esperar a que el formulario sea totalmente interactivo
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
         firstNameEl.clear();
         firstNameEl.sendKeys(firstName);
@@ -48,15 +53,8 @@ public class CheckoutPage {
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
 
-        // Intentar clic y como alternativa presionar ENTER para enviar el formulario en headless
-        WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
-        continueBtn.click();
-
-        // Si por latencia en headless no cambió inmediatamente, enviamos ENTER desde el input
-        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
-            postalCodeEl.sendKeys(Keys.ENTER);
-        }
-
+        // Avanzar a checkout-step-two
+        wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
