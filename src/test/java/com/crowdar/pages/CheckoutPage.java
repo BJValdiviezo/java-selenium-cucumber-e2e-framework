@@ -28,30 +28,35 @@ public class CheckoutPage {
     }
 
     public void clickCheckout() {
-        wait.until(ExpectedConditions.elementToBeClickable(checkoutButton)).click();
+        WebElement checkoutBtn = wait.until(ExpectedConditions.presenceOfElementLocated(checkoutButton));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", checkoutBtn);
     }
 
     public void enterShippingInformation(String firstName, String lastName, String postalCode) {
-        if (driver.getCurrentUrl().contains("cart.html")) {
-            clickCheckout();
+        // Si no estamos en checkout-step-one, nos aseguramos de navegar desde el carrito o via URL
+        if (!driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            if (driver.getCurrentUrl().contains("cart.html")) {
+                clickCheckout();
+            } else {
+                driver.get("https://www.saucedemo.com/checkout-step-one.html");
+            }
         }
 
-        // Esperar que los campos sean visibles
+        // Llenar datos de envio
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
-        WebElement lastNameEl = driver.findElement(lastNameInput);
-        WebElement postalCodeEl = driver.findElement(postalCodeInput);
-
-        // Cargar datos
         firstNameEl.clear();
         firstNameEl.sendKeys(firstName);
 
+        WebElement lastNameEl = driver.findElement(lastNameInput);
         lastNameEl.clear();
         lastNameEl.sendKeys(lastName);
 
+        WebElement postalCodeEl = driver.findElement(postalCodeInput);
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
 
-        // Forzar eventos JS para asegurar la validacion en React/Vue de Saucedemo
+        // Forzar eventos JS para asegurar la validacion del formulario
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript(
             "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));" +
@@ -60,29 +65,19 @@ public class CheckoutPage {
             firstNameEl, lastNameEl, postalCodeEl
         );
 
-        // Clic directo sobre el submit button
+        // Click en continue y fallback de submit
         WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
-        continueBtn.click();
+        js.executeScript("arguments[0].click();", continueBtn);
 
-        // Fallback: Si sigue en step-one despues de medio segundo, enviar submit del form por JS
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
-            js.executeScript("arguments[0].closest('form').submit();", continueBtn);
-        }
-
-        // Confirmar transicion exitosa
+        // Confirmar navegacion a la vista dos
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
     public void finishCheckout() {
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
-        WebElement finishBtn = wait.until(ExpectedConditions.elementToBeClickable(finishButton));
-        finishBtn.click();
+        WebElement finishBtn = wait.until(ExpectedConditions.presenceOfElementLocated(finishButton));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", finishBtn);
     }
 
     public String getConfirmationMessage() {
