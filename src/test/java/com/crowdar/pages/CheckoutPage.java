@@ -30,12 +30,10 @@ public class CheckoutPage {
     }
 
     public void enterShippingInformation(String firstName, String lastName, String postalCode) {
-        // Si el usuario aún está en /cart.html, hacemos clic en checkout primero
         if (driver.getCurrentUrl().contains("cart.html")) {
             clickCheckout();
         }
 
-        // Espera explícita hasta que el formulario del checkout esté visible
         wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput)).sendKeys(firstName);
         driver.findElement(lastNameInput).sendKeys(lastName);
         driver.findElement(postalCodeInput).sendKeys(postalCode);
@@ -43,6 +41,8 @@ public class CheckoutPage {
     }
 
     public void finishCheckout() {
+        // Espera a que la URL sea la del paso 2 (resumen) antes de buscar #finish
+        wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
         wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
     }
 
