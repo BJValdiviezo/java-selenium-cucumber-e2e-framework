@@ -1,6 +1,7 @@
 package com.crowdar.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -31,7 +32,6 @@ public class CheckoutPage {
     }
 
     public void enterShippingInformation(String firstName, String lastName, String postalCode) {
-        // Asegurar la transicion desde el carrito a checkout-step-one
         if (!driver.getCurrentUrl().contains("checkout-step-one.html")) {
             if (driver.getCurrentUrl().contains("cart.html")) {
                 clickCheckout();
@@ -40,7 +40,6 @@ public class CheckoutPage {
             }
         }
 
-        // Esperar a que el formulario sea totalmente interactivo
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
         firstNameEl.clear();
         firstNameEl.sendKeys(firstName);
@@ -53,13 +52,18 @@ public class CheckoutPage {
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
 
-        // Avanzar a checkout-step-two
-        wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
+        // Envío robusto mediante JavaScript en headless
+        WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", continueBtn);
+
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
     public void finishCheckout() {
-        wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
+        WebElement finishBtn = wait.until(ExpectedConditions.elementToBeClickable(finishButton));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", finishBtn);
     }
 
     public String getConfirmationMessage() {
