@@ -1,4 +1,4 @@
 "Epic","Feature","Story","FAILED","BROKEN","PASSED","SKIPPED","UNKNOWN"
-"","Autenticacion de usuario en la plataforma","Iniciar sesion con credenciales validas","0","0","1","0","0"
 "","Autenticacion de usuario en la plataforma","Intentar iniciar sesion con credenciales invalidas","0","0","2","0","0"
-"","Flujo de compra de productos","Agregar un producto al carrito y completar la compra con exito","0","1","0","0","0"
+"","Autenticacion de usuario en la plataforma","Iniciar sesion con credenciales validas","0","0","1","0","0"
+"","Flujo de compra de productos","Agregar un producto al carrito y completar la compra con exito","0","0","1","0","0"
