@@ -2,6 +2,7 @@ package com.crowdar.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -53,14 +54,17 @@ public class CheckoutPage {
         WebElement lastNameEl = driver.findElement(lastNameInput);
         WebElement postalCodeEl = driver.findElement(postalCodeInput);
 
-        // Llenado híbrido: sendKeys estándar + actualización explícita del estado de React
         setReactInputValue(firstNameEl, firstName);
         setReactInputValue(lastNameEl, lastName);
         setReactInputValue(postalCodeEl, postalCode);
 
-        // Click en continuar
+        // Intentar click estándar y fallback con ENTER en el último input
         WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
         continueBtn.click();
+
+        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            postalCodeEl.sendKeys(Keys.ENTER);
+        }
 
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
@@ -70,13 +74,13 @@ public class CheckoutPage {
         element.clear();
         element.sendKeys(value);
 
-        // Notificar al Virtual DOM de React en caso de latencia headless
+        // Sincronización explícita con el Virtual DOM de React para ejecuciones rápidas en CI
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript(
-            "var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;" +
-            "nativeInputValueSetter.call(arguments[0], arguments[1]);" +
-            "var ev = new Event('input', { bubbles: true });" +
-            "arguments[0].dispatchEvent(ev);",
+            "var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;" +
+            "nativeSetter.call(arguments[0], arguments[1]);" +
+            "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));" +
+            "arguments[0].dispatchEvent(new Event('change', { bubbles: true }));",
             element, value
         );
     }
@@ -84,7 +88,8 @@ public class CheckoutPage {
     public void finishCheckout() {
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
         WebElement finishBtn = wait.until(ExpectedConditions.elementToBeClickable(finishButton));
-        finishBtn.click();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", finishBtn);
     }
 
     public String getConfirmationMessage() {
