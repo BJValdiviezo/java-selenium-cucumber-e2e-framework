@@ -1,6 +1,7 @@
 package com.crowdar.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -35,7 +36,6 @@ public class CheckoutPage {
             clickCheckout();
         }
 
-        // Llenado de campos con esperas explícitas
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
         firstNameEl.clear();
         firstNameEl.sendKeys(firstName);
@@ -48,8 +48,15 @@ public class CheckoutPage {
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
 
-        // Clic en continue y confirmación de cambio de URL hacia checkout-step-two
-        wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
+        // Intentar clic y como alternativa presionar ENTER para enviar el formulario en headless
+        WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
+        continueBtn.click();
+
+        // Si por latencia en headless no cambió inmediatamente, enviamos ENTER desde el input
+        if (driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            postalCodeEl.sendKeys(Keys.ENTER);
+        }
+
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
