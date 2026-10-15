@@ -2,6 +2,7 @@ package com.crowdar.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -34,33 +35,33 @@ public class CheckoutPage {
     }
 
     public void enterShippingInformation(String firstName, String lastName, String postalCode) {
-        if (driver.getCurrentUrl().contains("cart.html")) {
-            clickCheckout();
+        if (!driver.getCurrentUrl().contains("checkout-step-one.html")) {
+            if (driver.getCurrentUrl().contains("cart.html")) {
+                clickCheckout();
+            } else {
+                driver.get("https://www.saucedemo.com/checkout-step-one.html");
+            }
         }
 
-        // Esperar que la vista de checkout-step-one esté cargada
         wait.until(ExpectedConditions.urlContains("checkout-step-one.html"));
 
         WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
-        WebElement lastNameEl = driver.findElement(lastNameInput);
-        WebElement postalCodeEl = driver.findElement(postalCodeInput);
-
-        // Infección limpia enviando los datos por atributos de valor e interacción Selenium
         firstNameEl.clear();
         firstNameEl.sendKeys(firstName);
 
+        WebElement lastNameEl = driver.findElement(lastNameInput);
         lastNameEl.clear();
         lastNameEl.sendKeys(lastName);
 
+        WebElement postalCodeEl = driver.findElement(postalCodeInput);
         postalCodeEl.clear();
         postalCodeEl.sendKeys(postalCode);
+        postalCodeEl.sendKeys(Keys.TAB); // Desasocia el foco para activar la validacion en la app
 
-        // Click asistido por JS para garantizar la activación del event listener de Continue
         WebElement continueBtn = wait.until(ExpectedConditions.presenceOfElementLocated(continueButton));
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("arguments[0].click();", continueBtn);
 
-        // Verificación paso a paso para confirmar salida del paso 1
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
