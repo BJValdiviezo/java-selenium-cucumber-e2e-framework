@@ -2,6 +2,7 @@ package com.crowdar.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -34,15 +35,25 @@ public class CheckoutPage {
             clickCheckout();
         }
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput)).sendKeys(firstName);
-        driver.findElement(lastNameInput).sendKeys(lastName);
-        driver.findElement(postalCodeInput).sendKeys(postalCode);
+        // Llenado de campos con esperas explícitas
+        WebElement firstNameEl = wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameInput));
+        firstNameEl.clear();
+        firstNameEl.sendKeys(firstName);
+
+        WebElement lastNameEl = driver.findElement(lastNameInput);
+        lastNameEl.clear();
+        lastNameEl.sendKeys(lastName);
+
+        WebElement postalCodeEl = driver.findElement(postalCodeInput);
+        postalCodeEl.clear();
+        postalCodeEl.sendKeys(postalCode);
+
+        // Clic en continue y confirmación de cambio de URL hacia checkout-step-two
         wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
+        wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
     public void finishCheckout() {
-        // Espera a que la URL sea la del paso 2 (resumen) antes de buscar #finish
-        wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
         wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
     }
 
