@@ -28,18 +28,18 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    # 3. Crear carpetas de reportes por defecto (evita el aviso de No files found)
+    # 3. Preparar directorios de reportes
     - name: Preparar directorios de reportes
       run: |
         mkdir -p target/cucumber-reports
         mkdir -p allure-results
 
-    # 4. Ejecutar las pruebas automatizadas
+    # 4. Ejecutar las pruebas automatizadas con Maven
     - name: Ejecutar Pruebas Automatizadas con Maven
       run: mvn test -Dbrowser=chrome -Dheadless=true
-      continue-on-error: true
+      continue-on-error: true # Permite que el pipeline siga para generar el reporte de Allure aunque falle un test
 
-    # 5. Guardar Reportes de Cucumber en Artifacts
+    # 5. Guardar Reportes de Cucumber como Artefacto
     - name: Guardar Reportes de Cucumber
       if: always()
       uses: actions/upload-artifact@v4
@@ -47,7 +47,7 @@ jobs:
         name: cucumber-test-reports
         path: target/cucumber-reports/
 
-    # 6. Instalar Allure CLI directamente en la VM (sin Docker)
+    # 6. Instalar Allure CLI y generar reporte HTML
     - name: Instalar Allure CLI
       if: always()
       run: |
@@ -60,10 +60,10 @@ jobs:
       if: always()
       run: allure generate allure-results --clean -o allure-report
 
-    # 7. Publicar en GitHub Pages
+    # 7. Publicar Reporte en GitHub Pages
     - name: Publicar Reporte en GitHub Pages
       if: always()
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
