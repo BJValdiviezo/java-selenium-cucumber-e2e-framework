@@ -53,38 +53,38 @@ public class CheckoutPage {
         WebElement lastNameEl = driver.findElement(lastNameInput);
         WebElement postalCodeEl = driver.findElement(postalCodeInput);
 
-        // Cargar valores
-        firstNameEl.clear();
-        firstNameEl.sendKeys(firstName);
+        // Llenado híbrido: sendKeys estándar + actualización explícita del estado de React
+        setReactInputValue(firstNameEl, firstName);
+        setReactInputValue(lastNameEl, lastName);
+        setReactInputValue(postalCodeEl, postalCode);
 
-        lastNameEl.clear();
-        lastNameEl.sendKeys(lastName);
-
-        postalCodeEl.clear();
-        postalCodeEl.sendKeys(postalCode);
-
-        // Forzar eventos de React para asegurar que el formulario detecte los textos ingresados en headless
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript(
-            "var ev = new Event('input', { bubbles: true });" +
-            "arguments[0].dispatchEvent(ev);" +
-            "arguments[1].dispatchEvent(ev);" +
-            "arguments[2].dispatchEvent(ev);",
-            firstNameEl, lastNameEl, postalCodeEl
-        );
-
-        // Ejecutar el submit directamente sobre el formulario contenedor
-        WebElement continueBtn = wait.until(ExpectedConditions.presenceOfElementLocated(continueButton));
-        js.executeScript("arguments[0].closest('form').submit();", continueBtn);
+        // Click en continuar
+        WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
+        continueBtn.click();
 
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
     }
 
+    private void setReactInputValue(WebElement element, String value) {
+        element.click();
+        element.clear();
+        element.sendKeys(value);
+
+        // Notificar al Virtual DOM de React en caso de latencia headless
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript(
+            "var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;" +
+            "nativeInputValueSetter.call(arguments[0], arguments[1]);" +
+            "var ev = new Event('input', { bubbles: true });" +
+            "arguments[0].dispatchEvent(ev);",
+            element, value
+        );
+    }
+
     public void finishCheckout() {
         wait.until(ExpectedConditions.urlContains("checkout-step-two.html"));
-        WebElement finishBtn = wait.until(ExpectedConditions.presenceOfElementLocated(finishButton));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].click();", finishBtn);
+        WebElement finishBtn = wait.until(ExpectedConditions.elementToBeClickable(finishButton));
+        finishBtn.click();
     }
 
     public String getConfirmationMessage() {
