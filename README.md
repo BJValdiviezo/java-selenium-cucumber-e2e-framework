@@ -5,8 +5,11 @@
 [![Cucumber](https://img.shields.io/badge/Cucumber-7.15-23D96C?style=for-the-badge&logo=cucumber&logoColor=white)](https://cucumber.io/)
 [![TestNG](https://img.shields.io/badge/TestNG-7.9-FF6C37?style=for-the-badge)](https://testng.org/)
 [![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)](https://maven.apache.org/)
+[![CI/CD Pipeline](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
+[![Allure Reports](https://img.shields.io/badge/Reports-Allure-FF7A00?style=for-the-badge)](https://allurereport.org/)
 
-Framework de automatización de pruebas End-to-End (E2E) robusto, escalable y mantenible construido con **Java 17**, **Selenium 4**, **Cucumber (BDD)** y **TestNG**. Diseñado bajo el patrón de arquitectura **Page Object Model (POM)** sobre la plataforma e-commerce [SauceDemo](https://www.saucedemo.com/).
+Framework de automatización de pruebas End-to-End (E2E) robusto, escalable y mantenible construido con **Java 17**, **Selenium 4**, **Cucumber (BDD)** y **TestNG**. Diseñado bajo el patrón de arquitectura **Page Object Model (POM)** sobre la plataforma e-commerce [SauceDemo](https://www.saucedemo.com/), con integración continua automatizada y reportes interactivos.
+
 
 ---
 
@@ -31,22 +34,22 @@ testng.xml                      <-- Suite runner y parametrización de ejecucion
 ```
 ---
 
-### 🌟 Key Features
-- **Diseño BDD con Gherkin:** Escenarios de prueba expresados en lenguaje natural, legibles para perfiles técnicos y funcionales.
-- **Page Object Model (POM):** Abstracción total de elementos de la interfaz de usuario para reducir la duplicación de código y facilitar el mantenimiento.
-- **Data-Driven Testing:** Pruebas parametrizadas utilizando `Scenario Outline` y `Examples` para validar múltiples combinaciones de datos (casos positivos y negativos).
-- **Configuración Dinámica & Cross-Browser:** Lectura centralizada de propiedades vía `config.properties` e inyección de navegador por consola (`-Dbrowser=chrome|firefox|edge`).
-- **Gestión Automatizada de Evidencias:** Captura e inyección automática de screenshots (`.png`) en los reportes HTML/JSON únicamente ante fallos mediante `Hooks.java`.
+## 🌟 Key Features
+- **Diseño BDD con Gherkin:** Escenarios de prueba expresados en lenguaje natural, permitiendo colaboración fluida entre perfiles técnicos y de negocio.
+- **Page Object Model (POM):** Abstracción total de elementos de la interfaz para reducir duplicación y facilitar la escalabilidad.
+- **Data-Driven Testing:** Pruebas parametrizadas para validar múltiples combinaciones de datos (casos positivos y negativos de autenticación).
+- **Paridad de Entornos (Local vs CI/CD):** Resolución de desafíos de sincronización en componentes SPA de React mediante inyección de eventos sintéticos, asegurando ejecución estable en Linux Headless (GitHub Actions).
+- **Reportes Ejecutivos Allure:** Generación y despliegue automático de métricas y evidencias visuales a través de **GitHub Pages**.
 
 ---
 
 ## 🧪 Cobertura de Pruebas
 
-| Feature | Tipo | Cobertura / Criterios de Aceptación |
+| Módulo | Tipo de Test | Criterios de Aceptación / Escenario |
 |---|---|---|
-| **Autenticación** | `@Smoke` | Inicio de sesión exitoso con credenciales válidas. |
-| **Autenticación** | `@Negative` | Validación de mensajes de error parametrizados (`locked_out_user`, `invalid_user`). |
-| **Flujo Checkout** | `@E2E` | Selección de productos, navegación al carrito, carga de datos de envío y confirmación de compra. |
+| **Autenticación** | `@Smoke` | Inicio de sesión exitoso con credenciales estándar válidas. |
+| **Autenticación** | `@Negative` | Validación de bloqueo de cuenta (`locked_out_user`) y credenciales incorrectas. |
+| **Flujo Checkout** | `@E2E` | Agregar producto al carro, navegación, llenado dinámico del formulario de envío y confirmación de orden. |
 
 ---
 
@@ -54,7 +57,7 @@ testng.xml                      <-- Suite runner y parametrización de ejecucion
 
 - **Java JDK 17** o superior.
 - **Apache Maven 3.8+**.
-- Navegador Google Chrome, Microsoft Edge o Mozilla Firefox instalado.
+- Navegador Google Chrome instalado localmente.
 
 ---
 
@@ -66,39 +69,30 @@ git clone https://github.com/BJValdiviezo/java-selenium-cucumber-e2e-framework.g
 cd java-selenium-cucumber-e2e-framework
 ```
 
-### 2. Ejecutar la suite completa por defecto (Chrome)
+### 2. Ejecución Local con Interfaz Gráfica
 ```bash
 mvn test
 ```
 
-### 3. Ejecución Cross-Browser vía Consola
-Podés seleccionar el navegador en tiempo de ejecución sin modificar el código fuente:
-
+### 3. Ejecución Local Simulando CI/CD (Modo Headless)
 ```bash
-# Ejecutar en Firefox
-mvn test -Dbrowser=firefox
-
-# Ejecutar en Edge
-mvn test -Dbrowser=edge
-```
-
-### 4. Ejecución vía Suite XML (TestNG)
-```bash
-mvn test -DsuiteXmlFile=testng.xml
+mvn test -Dbrowser=chrome -Dheadless=true
 ```
 
 ---
 
-## 📊 Reportes de Pruebas
+## 🔄 Integración Continua (CI/CD) & Reportes
 
-Al finalizar la ejecución, los reportes detallados se generan automáticamente en:
-* **Reporte HTML:** `target/cucumber-reports/cucumber-pretty.html`
-* **Reporte JSON:** `target/cucumber-reports/CucumberTestReport.json`
+El repositorio cuenta con una canalización automatizada en `.github/workflows/` que:
+1. Configura el entorno de ejecución Java en un runner Linux.
+2. Ejecuta la regresión completa en modo headless.
+3. Genera el reporte ejecutivo y actualiza automáticamente la documentación visual en **Allure Report (GitHub Pages)**.
 
 ---
 
 ## 👤 Autor
 
 **Brian Jesús Valdiviezo**
-* **LinkedIn:** [linkedin.com/in/brianjvaldiviezo](https://www.linkedin.com/in/brianjvaldiviezo/)
-* **Email:** bjvaldiviezo@gmail.com
+- **Rol:** QA Automation Engineer
+- **LinkedIn:** [linkedin.com/in/brianjvaldiviezo](https://www.linkedin.com/in/brianjvaldiviezo/)
+- **Email:** bjvaldiviezo@gmail.com
