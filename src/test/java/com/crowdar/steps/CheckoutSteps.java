@@ -5,6 +5,8 @@ import com.crowdar.pages.InventoryPage;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+
+import org.openqa.selenium.By;
 import org.testng.Assert;
 
 import java.util.List;
@@ -81,5 +83,23 @@ public class CheckoutSteps {
                     ") es mayor al siguiente ($" + prices.get(i + 1) + ").");
             }
         }
+    }
+    @And("remueve el producto del carrito")
+    public void remueveElProductoDelCarrito() {
+        checkoutPage.removeProductFromCart();
+    }
+
+    @Then("se verifica que el carrito queda vacio y sin productos listados")
+    public void seVerificaQueElCarritoQuedaVacioYSinProductosListados() {
+        // Validamos que el elemento del producto ya no esté presente en el carrito
+        boolean isProductPresent = true;
+        try {
+            // Si el elemento de la lista de inventario/carrito existe, lanzará timeout o true
+            org.openqa.selenium.WebDriver driver = Hooks.getDriver();
+            driver.findElement(By.className("cart_item"));
+        } catch (org.openqa.selenium.NoSuchElementException e) {
+            isProductPresent = false; // Si no lo encuentra, significa que se removió con éxito
+        }
+        Assert.assertFalse(isProductPresent, "El producto sigue apareciendo en el carrito.");
     }
 }

@@ -23,6 +23,9 @@ public class CheckoutPage {
     private By finishButton = By.id("finish");
     private By completeHeader = By.className("complete-header");
 
+    // Localizador para el botón remove dentro del carrito
+    private By removeButton = By.xpath("//button[text()='Remove']");
+
     public CheckoutPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -99,5 +102,10 @@ public class CheckoutPage {
 
     public String getConfirmationMessage() {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(completeHeader)).getText();
+    }
+
+    public void removeProductFromCart() {
+        WebElement removeBtn = wait.until(ExpectedConditions.elementToBeClickable(removeButton));
+        removeBtn.click();
     }
 }

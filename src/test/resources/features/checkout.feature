@@ -30,3 +30,12 @@ Feature: Flujo de compra de productos
       | criterio |
       | Price (low to high) |
       | Price (high to low) |
+
+  @Regression
+  Scenario: Agregar un producto y removerlo desde el carrito
+    Given que el usuario navega a la pagina de inicio
+    When ingresa las credenciales de prueba
+    And agrega el producto "Sauce Labs Backpack" al carrito
+    And navega al carrito de compras
+    And remueve el producto del carrito
+    Then se verifica que el carrito queda vacio y sin productos listados
