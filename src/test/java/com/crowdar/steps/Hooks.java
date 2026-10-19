@@ -54,14 +54,17 @@ public class Hooks {
                 case "chrome":
                 default:
                     ChromeOptions chromeOptions = new ChromeOptions();
+                    
+                    // Aplicamos siempre estas opciones base para estabilidad y resolución en cualquier entorno
+                    chromeOptions.addArguments("--window-size=1920,1080");
+                    chromeOptions.addArguments("--disable-gpu");
+                    chromeOptions.addArguments("--no-sandbox");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
+
                     if (isHeadless) {
-                        // Argumentos requeridos para que Chrome corra en Linux / CI
                         chromeOptions.addArguments("--headless=new");
-                        chromeOptions.addArguments("--no-sandbox");
-                        chromeOptions.addArguments("--disable-dev-shm-usage");
-                        chromeOptions.addArguments("--disable-gpu");
-                        chromeOptions.addArguments("--window-size=1920,1080");
                     }
+                    
                     driver = new ChromeDriver(chromeOptions);
                     break;
             }
