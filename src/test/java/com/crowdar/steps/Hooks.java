@@ -69,7 +69,11 @@ public class Hooks {
                     break;
             }
 
-            driver.manage().window().maximize();
+            // Solo maximizamos si no estamos corriendo en modo headless (evita conflictos en Linux/CI)
+            if (!isHeadless) {
+                driver.manage().window().maximize();
+            }
+
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(
                     Long.parseLong(PropertyReader.getProperty("implicitWait"))
             ));
