@@ -51,10 +51,11 @@ public class InventoryPage {
     }
 
     // Nuevo método para seleccionar una opción del filtro de ordenamiento (ej: "Price (low to high)")
-    public void selectSortOption(String sortOptionText) {
-        WebElement dropdown = wait.until(ExpectedConditions.visibilityOfElementLocated(sortDropdown));
-        Select select = new Select(dropdown);
-        select.selectByVisibleText(sortOptionText);
+    public void selectSortOption(String visibleText) {
+        // Usamos elementToBeClickable para asegurar que el combo no solo sea visible, sino operable en el DOM
+        WebElement sortDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.className("product_sort_container")));
+        org.openqa.selenium.support.ui.Select select = new org.openqa.selenium.support.ui.Select(sortDropdown);
+        select.selectByVisibleText(visibleText);
     }
 
     // Nuevo método para obtener la lista de precios actuales convertidos a Double y validar el ordenamiento
